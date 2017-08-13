@@ -1,6 +1,7 @@
 import numpy
-from random import choices
 import math
+from random import choices
+from error_evaluation import eval_mse
 
 def train_test(d, X_train, y_train, X_test, y_test, rounds):
     mse = []
@@ -37,7 +38,8 @@ def train_test(d, X_train, y_train, X_test, y_test, rounds):
             tmp = tmp + (numpy.dot(theta, X[i]) - y[i]) * X[i] - (numpy.dot(alpha[i], X[i]) - y[i]) * X[i]
         nabla = - theta + float(n) / float(b) * tmp + g
 
-        p_next = (1 - D*h) * p - h * nabla - math.sqrt(2*D*h) * numpy.random.multivariate_normal(numpy.zeros(d), numpy.identity(d))
+        p_next = (1 - D*h) * p - h * nabla
+                + math.sqrt(2*D*h) * numpy.random.multivariate_normal(numpy.zeros(d), numpy.identity(d))
         theta_next = theta + h * p_next
         samples.append(theta_next)
         moments.append(p_next)
@@ -50,17 +52,3 @@ def train_test(d, X_train, y_train, X_test, y_test, rounds):
         mse.append(err)
 
     return mse
-
-def eval_mse(d, samples, X_test, y_test):
-    err = 0.0
-
-    m = len(samples)
-    for x, y in X_test, y_test:
-        pred = 0.0
-        for theta in samples:
-            pred = pred + numpy.dot(x, theta)
-        pred = pred / float(m)
-
-        err = err + (y - pred) ** 2
-
-    return err / float(len(y_test))
