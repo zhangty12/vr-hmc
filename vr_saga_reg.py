@@ -24,21 +24,29 @@ def train_test(d, X_train, y_train, X_test, y_test, rounds):
     for i in range(n):
         alpha.append(theta)
 
-    g = 0
-    for x, y, a in X_train, y_train, alpha:
-        g = g - (y - numpy.dot(a, x)) * x
+    g = numpy.zeros(d)
+    for i in range(n):
+        g = g - (y_train[i] - numpy.dot(alpha[i], X_train[i, :])) * X_train[i, :]
 
+    print('Total number of iters: ', T)
     for t in range(T):
+        if t % 100 is 0:
+            print('Iter ', t)
+
         theta = samples[t]
         p = moments[t]
 
-        I = choice(range(n), b)
+        I = []
+        for i in range(b):
+            I.append(choice(range(n)))
         tmp = numpy.zeros(d)
         for i in I:
-            tmp = tmp + (numpy.dot(theta, X[i]) - y[i]) * X[i] - (numpy.dot(alpha[i], X[i]) - y[i]) * X[i]
+            tmp = tmp + (numpy.dot(theta, X_train[i, :]) - y_train[i]) * X_train[i, :] \
+                    - (numpy.dot(alpha[i], X_train[i, :]) - y_train[i]) * X_train[i, :]
         nabla = - theta + float(n) / float(b) * tmp + g
 
-        p_next = (1 - D*h) * p - h * nabla + math.sqrt(2*D*h) * numpy.random.multivariate_normal(numpy.zeros(d), numpy.identity(d))
+        p_next = (1 - D*h) * p - h * nabla + math.sqrt(2*D*h) \
+                    * numpy.random.multivariate_normal(numpy.zeros(d), numpy.identity(d))
         theta_next = theta + h * p_next
         samples.append(theta_next)
         moments.append(p_next)
@@ -49,5 +57,4 @@ def train_test(d, X_train, y_train, X_test, y_test, rounds):
 
         err = eval_mse(d, samples, X_test, y_test)
         mse.append(err)
-
     return mse
