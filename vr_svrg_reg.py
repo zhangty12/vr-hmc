@@ -1,7 +1,7 @@
 import numpy
 import math
 from random import choice
-from error_evaluation import eval_mse
+from loss_function import squared_loss
 
 def train_test(d, X_train, y_train, X_test, y_test, rounds):
     mse = []

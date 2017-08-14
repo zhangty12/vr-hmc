@@ -1,7 +1,7 @@
 import numpy
 import math
 from random import choice
-from error_evaluation import squared_loss
+from loss_function import squared_loss
 
 from sklearn.base import BaseEstimator, RegressorMixin
 
