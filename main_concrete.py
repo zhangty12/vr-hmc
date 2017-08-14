@@ -1,5 +1,8 @@
-import numpy
 from sklearn.model_selection import KFold
+from sklearn.model_selection import train_test_split
+from sklearn.grid_search import GridSearchCV
+
+import numpy
 import matplotlib.pyplot as plt
 
 import read_concrete
@@ -9,13 +12,26 @@ import vr_svrg_reg
 dim, X, y = read_concrete.read_concrete()
 
 kf = KFold(n_splits = 5)
-for train_index, test_index in kf.split(X):
-    X_train, X_test = X[train_index], X[test_index]
-    y_train, y_test = y[train_index], y[test_index]
+for tv_index, test_index in kf.split(X):
+    X_tv, X_test = X[tv_index], X[test_index]
+    y_tv, y_test = y[tv_index], y[test_index]
 
-    rnd = 5; size = len(y_train)
-    saga_plot = vr_saga_reg.train_test(dim, X_train, y_train, X_test, y_test, rnd)
-    svrg_plot = vr_svrg_reg.train_test(dim, X_train, y_train, X_test, y_test, rnd)
+    rnd = 3; size_tv = len(y_tv)
+
+    saga = vr_saga_reg.saga_estimator(dim = dim, round = rnd)
+    svrg = vr_svrg_reg.svrg_estimator(dim = dim, round = rnd)
+
+    saga_params = {'step_size': [0.1, 0.2, 0.3, 0.4, 0.5]}
+    svrg_params = {'step_size': [0.1, 0.2, 0.3, 0.4, 0.5]}
+
+    cv_saga = GridSearchCV(estimator = saga, param_grid = saga_params, cv = 8)
+    cv_svrg = GridSearchCV(estimator = svrg, param_grid = svrg_params, cv = 8)
+
+    cv_saga.fit(X_tv, y_tv)
+    cv_svrg.fit(X_tv, y_tv)
+
+    saga_plot = cv_saga.best_estimator_.fit2plot(X_tv, X_test, y_tv, y_test)
+    svrg_plot = cv_svrg.best_estimator_.fit2plot(X_tv, X_test, y_tv, y_test)
 
     plt.ylabel('Test MSE')
     plt.xlabel('Number of passes through data')
