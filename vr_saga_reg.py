@@ -13,8 +13,9 @@ class saga_estimator(BaseEstimator, RegressorMixin):
         self.dim = dim
 
     def fit(self, X_train, y_train):
+        d = self.dim
         b = 10
-        n = len(y)
+        n = len(y_train)
         T = n * self.round
         h = self.step_size
         D = 1.0
@@ -72,12 +73,12 @@ class saga_estimator(BaseEstimator, RegressorMixin):
         return -sum
 
     def predict(self, x):
-        m = len(samples)
+        m = len(self.samples)
         if m is 0:
             return 0.
 
         pred = 0.
-        for theta in samples:
+        for theta in self.samples:
             pred = pred + numpy.dot(x, theta)
         pred = pred / float(m)
         return pred
@@ -85,8 +86,9 @@ class saga_estimator(BaseEstimator, RegressorMixin):
     def fit2plot(self, X_train, X_test, y_train, y_test):
         mse = []
 
+        d = self.dim
         b = 10
-        n = len(y)
+        n = len(y_train)
         T = n * self.round
         h = self.step_size
         D = 1.0
