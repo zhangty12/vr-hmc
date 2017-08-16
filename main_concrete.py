@@ -32,10 +32,13 @@ for tv_index, test_index in kf.split(X):
 
     saga_plot = cv_saga.best_estimator_.fit2plot(X_tv, X_test, y_tv, y_test)
     svrg_plot = cv_svrg.best_estimator_.fit2plot(X_tv, X_test, y_tv, y_test)
+    print(len(saga_plot))
+    print(len(svrg_plot))
 
     plt.ylabel('Test MSE')
     plt.xlabel('Number of passes through data')
 
-    times = [1.0 / size * i for i in range(rnd * size)]
-    plt.plot(times, saga_plot, 'r-', 'SAGA',
-             times, svrg_plot, 'b-', 'SVRG')
+    times = [1.0 / size_tv * i for i in range(rnd * size_tv)]
+    plt.plot(times, saga_plot, 'r-', 'SAGA')
+    plt.plot(times, svrg_plot, 'b-', 'SVRG')
+    plt.show()
