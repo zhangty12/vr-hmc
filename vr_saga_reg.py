@@ -84,6 +84,7 @@ class saga_estimator(BaseEstimator, RegressorMixin):
         return pred
 
     def fit2plot(self, X_train, X_test, y_train, y_test):
+        self.samples = []
         mse = []
 
         d = self.dim

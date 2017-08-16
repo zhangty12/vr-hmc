@@ -84,6 +84,7 @@ class svrg_estimator(BaseEstimator, RegressorMixin):
         return pred
 
     def fit2plot(self, X_train, X_test, y_train, y_test):
+        self.samples = []
         mse = []
 
         d = self.dim
@@ -92,6 +93,7 @@ class svrg_estimator(BaseEstimator, RegressorMixin):
         T = n * self.round
         h = self.step_size
         D = 1.0
+        K = n / b
 
         samples = self.samples
         theta = numpy.random.multivariate_normal(numpy.zeros(d), numpy.identity(d))
