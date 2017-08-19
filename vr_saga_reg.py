@@ -66,21 +66,22 @@ class saga_estimator(BaseEstimator, RegressorMixin):
         return self
 
     def score(self, X, y):
-        sum = 0
+        sum = 0.
         n = len(y)
         for i in range(n):
             sum = sum + squared_loss(self.predict(X[i, :]), y[i])
-        return -sum
+        return -sum / n
 
     def predict(self, x):
-        m = len(self.samples)
+        n = len(self.samples)
+        m = min(n, 1500)
         if m is 0:
             return 0.
 
         pred = 0.
-        for theta in self.samples:
+        for theta in self.samples[n-m : ]:
             pred = pred + numpy.dot(x, theta)
-        pred = pred / float(m)
+        pred = pred / m
         return pred
 
     def fit2plot(self, X_train, X_test, y_train, y_test):

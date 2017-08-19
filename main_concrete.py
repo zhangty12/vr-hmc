@@ -21,8 +21,8 @@ for tv_index, test_index in kf.split(X):
     saga = vr_saga_reg.saga_estimator(dim = dim, round = rnd)
     svrg = vr_svrg_reg.svrg_estimator(dim = dim, round = rnd)
 
-    saga_params = {'step_size': [0.1, 0.2, 0.3, 0.4, 0.5]}
-    svrg_params = {'step_size': [0.1, 0.2, 0.3, 0.4, 0.5]}
+    saga_params = {'step_size': [0.00000001, 0.00000005, 0.0000001, 0.0000005, 0.000001, 0.000005, 0.00001, 0.00005]}
+    svrg_params = {'step_size': [0.00000001, 0.00000005, 0.0000001, 0.0000005, 0.000001, 0.000005, 0.00001, 0.00005]}
 
     cv_saga = GridSearchCV(estimator = saga, param_grid = saga_params, cv = 8)
     cv_svrg = GridSearchCV(estimator = svrg, param_grid = svrg_params, cv = 8)
@@ -32,13 +32,11 @@ for tv_index, test_index in kf.split(X):
 
     saga_plot = cv_saga.best_estimator_.fit2plot(X_tv, X_test, y_tv, y_test)
     svrg_plot = cv_svrg.best_estimator_.fit2plot(X_tv, X_test, y_tv, y_test)
-    print(len(saga_plot))
-    print(len(svrg_plot))
 
     plt.ylabel('Test MSE')
     plt.xlabel('Number of passes through data')
 
     times = [1.0 / size_tv * i for i in range(rnd * size_tv)]
-    plt.plot(times, saga_plot, 'r-', 'SAGA')
-    plt.plot(times, svrg_plot, 'b-', 'SVRG')
+    plt.plot(times, saga_plot, 'r-', label = 'SAGA')
+    plt.plot(times, svrg_plot, 'b-', label = 'SVRG')
     plt.show()
