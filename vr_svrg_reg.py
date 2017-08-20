@@ -6,7 +6,7 @@ from loss_function import squared_loss
 from sklearn.base import BaseEstimator, RegressorMixin
 
 class svrg_estimator(BaseEstimator, RegressorMixin):
-    def __init__(self, dim, round = 1, step_size = 0.1):
+    def __init__(self, dim, round = 1, step_size = 0.1, temp = 1.0):
         self.round = round
         self.step_size = step_size
         self.samples = []
@@ -18,7 +18,7 @@ class svrg_estimator(BaseEstimator, RegressorMixin):
         n = len(y_train)
         T = n * self.round
         h = self.step_size
-        D = 1.0
+        D = self.temp
         K = n / b
 
         samples = self.samples
@@ -74,7 +74,7 @@ class svrg_estimator(BaseEstimator, RegressorMixin):
 
     def predict(self, x):
         n = len(self.samples)
-        m = min(n, 1500)
+        m = min(n, 2000)
         if m is 0:
             return 0.
 
@@ -93,7 +93,7 @@ class svrg_estimator(BaseEstimator, RegressorMixin):
         n = len(y_train)
         T = n * self.round
         h = self.step_size
-        D = 1.0
+        D = self.temp
         K = n / b
 
         samples = self.samples
@@ -138,7 +138,8 @@ class svrg_estimator(BaseEstimator, RegressorMixin):
             samples.append(theta_next)
             moments.append(p_next)
 
-            err = - self.score(X_test, y_test)
-            mse.append(err)
+            if t % 10 is 0:
+                err = - self.score(X_test, y_test)
+                mse.append(err)
 
         return mse
