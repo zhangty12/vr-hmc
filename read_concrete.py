@@ -13,4 +13,8 @@ def read_concrete():
                 col_value.append(float(value))
             data.append(col_value)
             ans.append(s.cell(row, s.ncols-1).value)
-    return len(data[0]), numpy.array(data), numpy.array(ans)
+
+    X = numpy.array(data)
+    y = numpy.array(ans)
+    X_normed = X / X.max(axis = 0)
+    return len(data[0]), X_normed, y
