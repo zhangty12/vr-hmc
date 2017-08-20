@@ -52,7 +52,7 @@ class saga_estimator(BaseEstimator, RegressorMixin):
             for i in I:
                 tmp = tmp + (numpy.dot(theta, X_train[i, :]) - y_train[i]) * X_train[i, :] \
                         - (numpy.dot(alpha[i], X_train[i, :]) - y_train[i]) * X_train[i, :]
-            nabla = - theta + float(n) / float(b) * tmp + g
+            nabla = theta + float(n) / float(b) * tmp + g
 
             p_next = (1 - D*h) * p - h * nabla + math.sqrt(2*D*h) \
                         * numpy.random.multivariate_normal(numpy.zeros(d), numpy.identity(d))
@@ -75,14 +75,13 @@ class saga_estimator(BaseEstimator, RegressorMixin):
 
     def predict(self, x):
         n = len(self.samples)
-        m = min(n, 2000)
-        if m is 0:
+        if n is 0:
             return 0.
 
         pred = 0.
-        for theta in self.samples[n-m : ]:
+        for theta in self.samples:
             pred = pred + numpy.dot(x, theta)
-        pred = pred / m
+        pred = pred / n
         return pred
 
     def fit2plot(self, X_train, X_test, y_train, y_test):
@@ -127,7 +126,7 @@ class saga_estimator(BaseEstimator, RegressorMixin):
             for i in I:
                 tmp = tmp + (numpy.dot(theta, X_train[i, :]) - y_train[i]) * X_train[i, :] \
                         - (numpy.dot(alpha[i], X_train[i, :]) - y_train[i]) * X_train[i, :]
-            nabla = - theta + float(n) / float(b) * tmp + g
+            nabla = theta + float(n) / float(b) * tmp + g
 
             p_next = (1 - D*h) * p - h * nabla + math.sqrt(2*D*h) \
                         * numpy.random.multivariate_normal(numpy.zeros(d), numpy.identity(d))
