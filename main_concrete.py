@@ -57,5 +57,8 @@ plt.semilogy(times, saga_plot, 'r-', label = 'SAGA')
 plt.semilogy(times, svrg_plot, 'b-', label = 'SVRG')
 plt.semilogy(times, sgld_plot, 'g-', label = 'SGLD')
 plt.semilogy(times, sald_plot, 'y-', label = 'SALD')
-plt.show()
+
+plt.legend()
 plt.savefig('mse.png')
+
+plt.show()
