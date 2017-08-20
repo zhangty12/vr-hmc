@@ -62,4 +62,3 @@ plt.legend()
 plt.savefig('mse.png')
 
 plt.show()
-
