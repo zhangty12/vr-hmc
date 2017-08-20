@@ -5,13 +5,12 @@ from loss_function import squared_loss
 
 from sklearn.base import BaseEstimator, RegressorMixin
 
-class saga_estimator(BaseEstimator, RegressorMixin):
-    def __init__(self, dim, round = 1, step_size = 0.1, temp = 1.0):
+class sgld_estimator(BaseEstimator, RegressorMixin):
+    def __init__(self, dim, round = 1, step_size = 0.1):
         self.round = round
         self.step_size = step_size
         self.samples = []
         self.dim = dim
-        self.temp = temp
 
     def fit(self, X_train, y_train):
         d = self.dim
@@ -19,50 +18,43 @@ class saga_estimator(BaseEstimator, RegressorMixin):
         n = len(y_train)
         T = n * self.round
         h = self.step_size
-        D = self.temp
+        K = n / b
 
         samples = self.samples
         theta = numpy.random.multivariate_normal(numpy.zeros(d), numpy.identity(d))
         samples.append(theta)
 
-        moments = []
-        p = numpy.random.multivariate_normal(numpy.zeros(d), numpy.identity(d))
-        moments.append(p)
-
-        alpha = []
-        for i in range(n):
-            alpha.append(theta)
-
         g = numpy.zeros(d)
-        for i in range(n):
-            g = g - (y_train[i] - numpy.dot(alpha[i], X_train[i, :])) * X_train[i, :]
+        w = numpy.zeros(d)
 
         print('Total number of iters: ', T)
         for t in range(T):
             if t % 100 is 0:
-                print('Iter: ', t)
+                print('Iter ', t)
 
             theta = samples[t]
-            p = moments[t]
+            if t % K == 0:
+                tmp = numpy.zeros(d)
+                for i in range(n):
+                    x = X_train[i, :]
+                    y = y_train[i]
+                    tmp = tmp + (numpy.dot(theta, x) - y) * x
+                g = - theta + tmp
+                w = theta
 
             I = []
             for i in range(b):
                 I.append(choice(range(n)))
+
             tmp = numpy.zeros(d)
             for i in I:
                 tmp = tmp + (numpy.dot(theta, X_train[i, :]) - y_train[i]) * X_train[i, :] \
-                        - (numpy.dot(alpha[i], X_train[i, :]) - y_train[i]) * X_train[i, :]
+                        - (numpy.dot(w, X_train[i, :]) - y_train[i]) * X_train[i, :]
             nabla = theta + float(n) / float(b) * tmp + g
 
-            p_next = (1 - D*h) * p - h * nabla + math.sqrt(2*D*h) \
-                        * numpy.random.multivariate_normal(numpy.zeros(d), numpy.identity(d))
-            theta_next = theta + h * p_next
+            theta_next = theta - h * nabla \
+                        + math.sqrt(2*h) * numpy.random.multivariate_normal(numpy.zeros(d), numpy.identity(d))
             samples.append(theta_next)
-            moments.append(p_next)
-
-            for i in I:
-                alpha[i] = theta
-            g = g + tmp
 
         return self
 
@@ -93,50 +85,43 @@ class saga_estimator(BaseEstimator, RegressorMixin):
         n = len(y_train)
         T = n * self.round
         h = self.step_size
-        D = self.temp
+        K = n / b
 
         samples = self.samples
         theta = numpy.random.multivariate_normal(numpy.zeros(d), numpy.identity(d))
         samples.append(theta)
 
-        moments = []
-        p = numpy.random.multivariate_normal(numpy.zeros(d), numpy.identity(d))
-        moments.append(p)
-
-        alpha = []
-        for i in range(n):
-            alpha.append(theta)
-
         g = numpy.zeros(d)
-        for i in range(n):
-            g = g - (y_train[i] - numpy.dot(alpha[i], X_train[i, :])) * X_train[i, :]
+        w = numpy.zeros(d)
 
         print('Plot total number of iters: ', T)
         for t in range(T):
             if t % 100 is 0:
-                print('Plot iter: ', t)
+                print('Plot iter ', t)
 
             theta = samples[t]
-            p = moments[t]
+            if t % K == 0:
+                tmp = numpy.zeros(d)
+                for i in range(n):
+                    x = X_train[i, :]
+                    y = y_train[i]
+                    tmp = tmp + (numpy.dot(theta, x) - y) * x
+                g = - theta + tmp
+                w = theta
 
             I = []
             for i in range(b):
                 I.append(choice(range(n)))
+
             tmp = numpy.zeros(d)
             for i in I:
                 tmp = tmp + (numpy.dot(theta, X_train[i, :]) - y_train[i]) * X_train[i, :] \
-                        - (numpy.dot(alpha[i], X_train[i, :]) - y_train[i]) * X_train[i, :]
+                        - (numpy.dot(w, X_train[i, :]) - y_train[i]) * X_train[i, :]
             nabla = theta + float(n) / float(b) * tmp + g
 
-            p_next = (1 - D*h) * p - h * nabla + math.sqrt(2*D*h) \
-                        * numpy.random.multivariate_normal(numpy.zeros(d), numpy.identity(d))
-            theta_next = theta + h * p_next
+            theta_next = theta - h * nabla \
+                        + math.sqrt(2*h) * numpy.random.multivariate_normal(numpy.zeros(d), numpy.identity(d))
             samples.append(theta_next)
-            moments.append(p_next)
-
-            for i in I:
-                alpha[i] = theta
-            g = g + tmp
 
             if t % 10 is 0:
                 err = - self.score(X_test, y_test)

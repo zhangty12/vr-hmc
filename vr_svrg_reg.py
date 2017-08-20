@@ -6,7 +6,7 @@ from loss_function import squared_loss
 from sklearn.base import BaseEstimator, RegressorMixin
 
 class svrg_estimator(BaseEstimator, RegressorMixin):
-    def __init__(self, dim, round = 1, step_size = 0.1):
+    def __init__(self, dim, round = 1, step_size = 0.1, temp = 1.0):
         self.round = round
         self.step_size = step_size
         self.samples = []
@@ -18,7 +18,7 @@ class svrg_estimator(BaseEstimator, RegressorMixin):
         n = len(y_train)
         T = n * self.round
         h = self.step_size
-        D = 1.0
+        D = self.temp
         K = n / b
 
         samples = self.samples
@@ -55,7 +55,7 @@ class svrg_estimator(BaseEstimator, RegressorMixin):
             for i in I:
                 tmp = tmp + (numpy.dot(theta, X_train[i, :]) - y_train[i]) * X_train[i, :] \
                         - (numpy.dot(w, X_train[i, :]) - y_train[i]) * X_train[i, :]
-            nabla = - theta + float(n) / float(b) * tmp + g
+            nabla = theta + float(n) / float(b) * tmp + g
 
             p_next = (1 - D*h) * moments[t] - h*nabla + math.sqrt(2*D*h) \
                         * numpy.random.multivariate_normal(numpy.zeros(d), numpy.identity(d))
@@ -74,14 +74,13 @@ class svrg_estimator(BaseEstimator, RegressorMixin):
 
     def predict(self, x):
         n = len(self.samples)
-        m = min(n, 1500)
-        if m is 0:
+        if n is 0:
             return 0.
 
         pred = 0.
-        for theta in self.samples[n-m : ]:
+        for theta in self.samples:
             pred = pred + numpy.dot(x, theta)
-        pred = pred / m
+        pred = pred / n
         return pred
 
     def fit2plot(self, X_train, X_test, y_train, y_test):
@@ -93,7 +92,7 @@ class svrg_estimator(BaseEstimator, RegressorMixin):
         n = len(y_train)
         T = n * self.round
         h = self.step_size
-        D = 1.0
+        D = self.temp
         K = n / b
 
         samples = self.samples
@@ -130,7 +129,7 @@ class svrg_estimator(BaseEstimator, RegressorMixin):
             for i in I:
                 tmp = tmp + (numpy.dot(theta, X_train[i, :]) - y_train[i]) * X_train[i, :] \
                         - (numpy.dot(w, X_train[i, :]) - y_train[i]) * X_train[i, :]
-            nabla = - theta + float(n) / float(b) * tmp + g
+            nabla = theta + float(n) / float(b) * tmp + g
 
             p_next = (1 - D*h) * moments[t] - h*nabla + math.sqrt(2*D*h) \
                         * numpy.random.multivariate_normal(numpy.zeros(d), numpy.identity(d))
@@ -138,7 +137,8 @@ class svrg_estimator(BaseEstimator, RegressorMixin):
             samples.append(theta_next)
             moments.append(p_next)
 
-            err = - self.score(X_test, y_test)
-            mse.append(err)
+            if t % 10 is 0:
+                err = - self.score(X_test, y_test)
+                mse.append(err)
 
         return mse
