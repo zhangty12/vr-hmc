@@ -44,7 +44,7 @@ class svrg_estimator(BaseEstimator, RegressorMixin):
                     x = X_train[i, :]
                     y = y_train[i]
                     tmp = tmp + (numpy.dot(theta, x) - y) * x
-                g = - theta + tmp
+                g = theta + tmp
                 w = theta
 
             I = []
@@ -118,7 +118,7 @@ class svrg_estimator(BaseEstimator, RegressorMixin):
                     x = X_train[i, :]
                     y = y_train[i]
                     tmp = tmp + (numpy.dot(theta, x) - y) * x
-                g = - theta + tmp
+                g = theta + tmp
                 w = theta
 
             I = []
