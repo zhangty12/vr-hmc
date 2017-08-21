@@ -51,5 +51,7 @@ def run_expr(initiate):
     plt.semilogy(times, svrg_plot, 'b-', label = 'SVRG')
     plt.semilogy(times, sgld_plot, 'g-', label = 'SGLD')
     plt.semilogy(times, sald_plot, 'y-', label = 'SALD')
-    plt.show()
+
+    plt.legend()
     plt.savefig(name + '/mse_' + name + '.png')
+    plt.show()
